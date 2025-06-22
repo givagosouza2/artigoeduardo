@@ -20,16 +20,18 @@ def calcular_icc(data):
 # ------------------------------
 # Função para tentar diferentes separadores
 def tentar_carregar_csv(uploaded_file):
-    separadores = {',': 'Vírgula', ';': 'Ponto e vírgula', '\t': 'Tabulação'}
+    # Ordem de preferência: ponto e vírgula, depois vírgula, depois tabulação
+    separadores = {';': 'Ponto e vírgula', ',': 'Vírgula', '\t': 'Tabulação'}
+    
     for sep, nome in separadores.items():
         try:
             df = pd.read_csv(uploaded_file, sep=sep)
+            # Garante que o arquivo tenha pelo menos 2 colunas após o split
             if df.shape[1] >= 2:
                 return df, nome
         except Exception:
             continue
     return None, None
-
 # ------------------------------
 # Interface Streamlit
 st.title("Análise de Confiabilidade Inter-Dias")
