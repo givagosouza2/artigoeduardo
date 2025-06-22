@@ -3,6 +3,7 @@ import pandas as pd
 import numpy as np
 from scipy.stats import shapiro, rankdata
 from sklearn.metrics import mean_absolute_error
+import io
 
 # ------------------------------
 # Função para calcular ICC simples
@@ -34,6 +35,8 @@ def tentar_carregar_csv(uploaded_file):
 st.title("Análise de Confiabilidade Inter-Dias")
 
 uploaded_file = st.file_uploader("Carregue um arquivo CSV com duas colunas: Dia 1 e Dia 2", type=["csv"])
+
+resultados_para_exportar = None
 
 if uploaded_file is not None:
     df, separador_usado = tentar_carregar_csv(uploaded_file)
@@ -103,6 +106,8 @@ if uploaded_file is not None:
                 st.subheader("Resultados - Análise Paramétrica")
                 st.dataframe(resultados_df)
 
+                resultados_para_exportar = resultados_df
+
             else:
                 st.warning("Pelo menos um dos dias não apresentou normalidade. Executando análise não paramétrica...")
 
@@ -130,3 +135,15 @@ if uploaded_file is not None:
 
                 st.subheader("Resultados - Análise Não Paramétrica")
                 st.dataframe(resultados_np_df)
+
+                resultados_para_exportar = resultados_np_df
+
+        # Botão para exportar os resultados
+        if resultados_para_exportar is not None:
+            csv = resultados_para_exportar.to_csv(index=False).encode('utf-8')
+            st.download_button(
+                label="📥 Exportar Resultados para CSV",
+                data=csv,
+                file_name='resultados_confiabilidade.csv',
+                mime='text/csv'
+            )
